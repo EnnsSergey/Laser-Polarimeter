@@ -1,0 +1,36 @@
+hist_fpath : '/storage/hist/' #Path to store mapped event histograms
+#fitres_file : '/home/lsrp/Control/polarimeter_dev/tmp/pol_fitres.txt'
+regex_line : '*-*-*.npz'
+fit_method_src : 'fit_method3'
+png_file_name : 'spot_fit_tmp.png'
+
+#Choose fit region (use physical coordinates and take in mind that each bin at the central region has length of 2 mm)
+xrange : [-32,32]
+n_files : 5
+need_blur : False
+blur_type : large_deviation_blur
+scale_hits: False
+continue: True
+fit_method : 3
+version: 999
+padding: [22,16]
+is_db_write: False
+
+mask:
+    #- [-0.5,-1]
+    #- [ 0.5,-1]
+    #- [-0.5,2]
+    #- [0.5,2]
+
+model_params:  
+    E       : [0.0,     0.1,    [0.0, 10000],   True] #MeV #the value will be taken from data of pol_preprocess or from command line
+    L       : [29900.0, 2000.,  [0.0, 100000],  True] #mm
+    P       : [0.0,     0.5,    [-10.0, 10.0],  False]  # beam polarization degree
+    V       : [0.0,     0.5,    [-1.0, 1.0],    True]  # if V=0.0 then V is calculated from Q: V=sqrt(1-Q^2), if abs(V)>=0.00001 then V is fixed to unit: V=1
+    Q       : [0.0,     0.5,    [-1.0, 1.0],    False]  # linear polarization
+    beta    : [0.0,     1.0,    [-7.0, 7.0],    False] #polarization ellipse angle
+    alpha   : [0.0,     0.5,    [-7.0, 7.0],    True]  #Поворот вертикальной поляризации относительно детектора
+    DN      : [0.0,     0.1,    [-1.0, +1.0],   False]
+    k       : [1.0e-4,  1.0e-6, [0, 1.],        True]
+ 
+
