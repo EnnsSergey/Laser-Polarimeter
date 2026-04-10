@@ -10,6 +10,7 @@
 #include <cmath>
 #include <cstdlib>
 
+#include <tuple>
 
 class Compton
 {
@@ -19,26 +20,26 @@ class Compton
 		static double beta;
 		static int n;
 		static constexpr double pi = M_PI;
-
-
-
-		double me = 0.5109989461e6;
-		double o = 2.3526413364;
-		double g = 9245.67;
-		double kappa = 4.0*g*o/me;
 		
-
-		double Generator(double theta_x, double theta_y, double P, double Q, double beta, bool pol);
-		std::vector<double> Neumann(double P, double Q, double beta, bool pol);
+		static constexpr double me = 0.5109989461;
+		static constexpr double o = 2.3526413364e-6; //MeV
+		double Energy;
+		double gamma;
+		double kappa;
 		
+		std::mt19937 gen;
+
+    Compton(double E=4730.0, unsigned seed = 42);
+
+
+ 	std::tuple<double, double> Neumann(double P, double Q, double beta, bool pol);
+
+    double get_kappa(void) const {return kappa;}
+
+    double get_gamma(void) const {return gamma;}
+
+    double get_energy(void) const {return Energy;}
+
 };
-class ElectronBeam
-{
-	public:
-		
-		double g = 9245.67;
-		std::vector<double> BoxMuller();
 
-};
 #endif // COMPTON_H
-

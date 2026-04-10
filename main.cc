@@ -34,6 +34,10 @@ int main(int argc, char** argv)
 			params.Q = std::atof(argv[++i]);
 		else if (std::string(argv[i]) == "--beta" && i+1 < argc)
 			params.beta = std::atof(argv[++i]); 
+		else if (std::string(argv[i]) == "--sx" && i+1 < argc)
+			params.d_theta_x = pow(10,-6) * std::atof(argv[++i]);
+		else if (std::string(argv[i]) == "--sy" && i+1 < argc)
+			params.d_theta_y = pow(10,-6) * std::atof(argv[++i]);
 	}
 
 	G4RunManager* runManager = new G4RunManager; 

@@ -17,7 +17,6 @@ class PrimaryGenerator : public G4VUserPrimaryGeneratorAction
 		~PrimaryGenerator();
 		virtual void GeneratePrimaries(G4Event*);
 		Compton compt;
-		ElectronBeam beam;
 
 	private:
 		G4ParticleGun* fParticleGun; 

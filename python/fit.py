@@ -340,18 +340,38 @@ def save_mapped_hist(params, filename, h_dict, env_params):
             yc = h_dict['yc'],
             env_params=env_params)
 '''	
-def create_dir():
+def create_dir(dir_path):
     path = "../fitting"
-    i = 0
-    while True:
-        dir_name = f"{path}_{i}"
-        if not os.path.exists(dir_name):
-            os.mkdir(dir_name, exist_ok=True)
-            return dir_name
-        i += 1
+    dir_name = path + dir_path.replace("../output", "")
+    os.mkdir(dir_name)
+    return dir_name
+    
 
-# Использование
-new_folder = create_next_fitting_folder()
+
+def select_dir(base_path = ".."):
+    available_dirs = [d for d in os.listdir(base_path) if d.startswith("output_") and os.path.isdir(os.path.join(base_path,d))]
+    if not available_dirs:
+        print("Нет доступных директорий")
+        return None
+    print("\nСписок доступных директорий: ")
+    for i, dir_name in enumerate(available_dirs):
+        disp = dir_name.replace("output_", "").split("_")
+        if len(disp)>=2:
+            print(f" {i}:{dir_name} (d_theta_x = {disp[0]}, d_theta_y = {disp[1]})")
+        else:
+            print(f" {i}:{dir_name}")
+    try:
+        choice = input("\n Выберите номер директории: ")
+
+        index = int(choice)
+        if 0<=index<=len(available_dirs):
+            return os.path.join(base_path, available_dirs[index])
+        else:
+            print("Неверный номер")
+            return None
+    except:
+        print("ERROR")
+        return None
 
 
 P = 0.0
@@ -379,16 +399,22 @@ params = [P, Q, beta]
 #cmd = subprocess.run([exe, macro, '--P', str(P), '--Q', str(Q), '--beta', str(beta)])
 
 bins = [20,32] # число бинов
+'''
+sx = input("разброс по x: ")
+sy = input("разброс по y: ")
 
+out_dir = '../output_' + sx + '_' + sy'''
+
+out_dir = select_dir()
 #Гистограмма для правой поляризации
-hist_r = np.loadtxt('../output/histogram_r_0.txt')
+hist_r = np.loadtxt(out_dir + '/histogram_r_0.txt')
 print(hist_r.shape)
 #Гистограмма для левой поляризации
-hist_l = np.loadtxt('../output/histogram_l_0.txt')
+hist_l = np.loadtxt(out_dir + '/histogram_l_0.txt')
 
-for i in range(0, 100):
-    hist_r += np.loadtxt('../output/histogram_r_' + str(i) + '.txt')
-    hist_l += np.loadtxt('../output/histogram_l_' + str(i) + '.txt')
+for i in range(0, 10):
+    hist_r += np.loadtxt(out_dir + '/histogram_r_' + str(i) + '.txt')
+    hist_l += np.loadtxt(out_dir + '/histogram_l_' + str(i) + '.txt')
 
 '''	
 np.savetxt('histogram_L.txt',hist_l, fmt='%d', delimiter=' ')
@@ -429,7 +455,7 @@ fitter, data_fields = make_fit(config, h_dict)
 
 fig, ax = init_figure('Laser Polarimeter 2D Fit')
 
-path = create_dir()
+path = create_dir(out_dir)
 draw(ax, config, fitter, data_fields, num, path)
 
 plt.show(block=True)

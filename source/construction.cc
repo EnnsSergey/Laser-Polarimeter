@@ -32,7 +32,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		G4double conv_dist = 29.9*m;
 		G4double conv_sizeX = 161.4*mm;
 		G4double conv_sizeY = 50.35*mm;
-		G4double conv_sizeZ = 20*mm;
+		G4double conv_sizeZ = 12*mm;
 
 		//детектор
 		G4double det_sizeX = 161.4*mm;

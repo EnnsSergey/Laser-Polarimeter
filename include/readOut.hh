@@ -11,8 +11,8 @@ class ReadOut
     public:
         constexpr static size_t XSIZE = 32;    // 32 пада по X
         constexpr static size_t YSIZE = 20;    // 20 падов по Y
-        constexpr static float X_SIZE = 161.4*mm;  // Размер детектора по X
-        constexpr static float Y_SIZE = 50.35*mm;  // Размер детектора по Y
+        constexpr static float X_SIZE = 64*mm; // Размер детектора по X
+        constexpr static float Y_SIZE = 20*mm;  // Размер детектора по Y
         
         std::array<std::array<float, XSIZE>, YSIZE> charge;
         

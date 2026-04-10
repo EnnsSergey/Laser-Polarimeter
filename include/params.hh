@@ -4,6 +4,7 @@
 #include "G4SystemOfUnits.hh"
 struct Params
 {
+	
 	// параметры Стокса по умолчанию
 	double P = 0.0;
 	double Q = 0.0;
@@ -14,8 +15,8 @@ struct Params
 	double d_theta_y = 0.0001;
 
 	// разброс по координатам
-	G4double sigma_x = 4.3 * mm;
-	G4double sigma_y = 0.38 * mm;
+	G4double sigma_x = 0; // 4.3 * mm;
+	G4double sigma_y = 0; //0.38 * mm;
 };
 
 #endif
