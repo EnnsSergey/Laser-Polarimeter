@@ -8,7 +8,7 @@ ActionInitialization::~ActionInitialization()
 
 void ActionInitialization::Build() const
 {
-	PrimaryGenerator* generator = new PrimaryGenerator(fParams);
+	PrimaryGenerator* generator = new PrimaryGenerator(fParams, fThrNum);
 	SetUserAction(generator);
 
 	RunAction* runAct = new RunAction(fThrNum, fParams);

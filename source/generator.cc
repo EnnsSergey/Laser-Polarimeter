@@ -2,7 +2,7 @@
 #include "G4SystemOfUnits.hh"
 #include <cmath>
 #include "Randomize.hh"
-PrimaryGenerator::PrimaryGenerator(const Params& params) : fParams(params), compt(4730.0, 42)
+PrimaryGenerator::PrimaryGenerator(const Params& params, int thr_num) : fParams(params), compt(1000+thr_num, 4730.0)
 {
 
 	fParticleGun = new G4ParticleGun(1);
@@ -27,32 +27,34 @@ PrimaryGenerator::~PrimaryGenerator()
 
 void PrimaryGenerator::GeneratePrimaries(G4Event* event)
 {	
+	
+	std::cout<<"P "<<fParams.P<<" "<<"Q "<<fParams.Q<<" "<<"beta "<<fParams.beta<<std::endl;
+
 	G4int nEvent = event -> GetEventID();
-	std::tuple<double, double>  angles = compt.Neumann(fParams.P, fParams.Q, fParams.beta, (nEvent % 2 == 0));
+	bool pol =(nEvent % 2 == 0);
+	std::cout<<"POL "<< pol<<std::endl;
+	std::tuple<double, double>  angles = compt.Neumann(fParams.P, fParams.Q, fParams.beta, pol);
 	double theta_x = std::get<0>(angles);
 	double theta_y = std::get<1>(angles);
+
 	double disp_x = G4RandGauss::shoot(0, fParams.d_theta_x);
 	double disp_y = G4RandGauss::shoot(0, fParams.d_theta_y);
-//	std::cout<<"GAMMA "<<compt.get_gamma()<< std::endl;
 
-//	std::cout<<"УГЛЫ "<<theta_x<<" "<< theta_y<< std::endl;
+	double theta_e = sqrt(disp_x*disp_x + disp_y*disp_y);        // угол электрона
 
-        //std::cout<<"DISP "<<fParams.d_theta_x<<" "<<fParams.d_theta_y<<std::endl;
+	double theta = sqrt(theta_x*theta_x + theta_y*theta_y);
+	// проекции полного угла отклонения фотона
+	
 	double beta = sqrt(1 - 1/(compt.gamma * compt.gamma));
 	
-	double theta_e = disp_x*disp_x + disp_y*disp_y;        // угол электрона
-	double theta_gamma = theta_x*theta_x + theta_y*theta_y; // угол рассеянного фотона
+	double bracket1 = 1 - (theta_e*theta_e)/2;
+	double bracket2 = 1 - (theta * theta) / 2;
+	double bracket3 = 2 + ((theta_x + disp_x)*(theta_x+disp_x) + (theta_y + disp_y)*(theta_y + disp_y))/2;
+	double PhotonEnergy = (compt.o) * (1 + beta * bracket1) / (1 - beta * bracket2 + compt.o * bracket3/compt.get_energy());
 
-	double bracket1 = theta_e/2 - 1;
-	double bracket2 = 1 - theta_gamma / 2;
-	double bracket3 = 2 - ((disp_x + theta_x)*(disp_x + theta_x) + (disp_y + theta_y)*(disp_y + theta_y));
-	double PhotonEnergy = (compt.o) * (1 - beta * bracket1) / (1 - beta * bracket2 + compt.o * bracket3/compt.get_energy());
-
-	//std::cout<<"ЭНЕРГИЯ ФОТОНА до "<< compt.o<< std::endl;
-	//std::cout<<"ЭНЕРГИЯ ФОТОНА после "<< PhotonEnergy<< std::endl;
 	fParticleGun -> SetParticleMomentum(PhotonEnergy * MeV);
 
-	G4ThreeVector mom(theta_x + disp_x, theta_y + disp_y, 1); //второй порядок по углуу отброшен
+	G4ThreeVector mom(theta_x + disp_x, theta_y + disp_y, 1); 
 	
 	fParticleGun->SetParticleMomentumDirection(mom);
 	//fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0,0,1));

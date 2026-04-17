@@ -29,10 +29,11 @@ class Compton
 		
 		std::mt19937 gen;
 
-    Compton(double E=4730.0, unsigned seed = 42);
+
+    Compton(unsigned seed, double E=4730.0);
 
 
- 	std::tuple<double, double> Neumann(double P, double Q, double beta, bool pol);
+    std::tuple<double, double> Neumann(double P, double Q, double beta, bool pol);
 
     double get_kappa(void) const {return kappa;}
 

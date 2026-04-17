@@ -13,7 +13,7 @@
 class PrimaryGenerator : public G4VUserPrimaryGeneratorAction
 {
 	public:
-		PrimaryGenerator(const Params& param);
+		PrimaryGenerator(const Params& param, int thr_num);
 		~PrimaryGenerator();
 		virtual void GeneratePrimaries(G4Event*);
 		Compton compt;

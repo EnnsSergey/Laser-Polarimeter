@@ -1,15 +1,13 @@
 dir="/home/enns/LaserPolarimeter"
 
-for (( i = 1; i <= 10; i++ ))
+#sx=50
+sy=50
+for (( i = 0; i <= 100; i++ ))
 do
-	for (( j = 1; j <= 10; j++ ))
-	do
-		sx=$((100*$i))
-		sy=$((10*$j))
-		for (( k = 0; k < 10;  k++ ))
-		do
-			qsub main.sh $k $sx $sy
-		done
+	sx=$((10*$i))
+	for (( k = 0; k < 10; k++ ))
+	do 
+		qsub main.sh $k $sx $sy
 	done
 
 done

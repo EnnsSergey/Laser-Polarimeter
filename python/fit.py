@@ -17,7 +17,7 @@ from importlib import import_module
 import datetime
 import scipy.stats
 import math
-
+import sys
 
 E=4730.
 me = 0.5109989461*10**6   #electron mass eV
@@ -37,7 +37,7 @@ def make_central_coord(x,y):
     return [x_mid, y_mid]
 
 
-def make_fit(config, h_dict):
+def make_fit(config, h_dict, par):
     #data_left = h_dict['hc_l']
     #data_right = h_dict['hc_r']
     xy_coord = make_central_coord(h_dict['xc'], h_dict['yc'])
@@ -51,7 +51,7 @@ def make_fit(config, h_dict):
     padding = cfg['padding']
     raw_data = (h_dict['hc_l'], h_dict['hc_r'])
     fm = eval('fit_method_module.FitMethod'+str(fit_method)+'(xy_coord, raw_data, padding=padding)')
-    fm.fit(cfg)
+    fm.fit(cfg, par)
     data_fields = fm.get_fit_result(cfg)
 
     return fm, data_fields
@@ -405,7 +405,18 @@ sy = input("разброс по y: ")
 
 out_dir = '../output_' + sx + '_' + sy'''
 
-out_dir = select_dir()
+#out_dir = select_dir()
+
+#проверяем аргументы
+if len(sys.argv) < 2:
+    print ("не указана дирректория для подгонки! \n")
+    sys.exit(1)
+
+out_dir = sys.argv[1]
+
+
+
+
 #Гистограмма для правой поляризации
 hist_r = np.loadtxt(out_dir + '/histogram_r_0.txt')
 print(hist_r.shape)
@@ -451,7 +462,9 @@ h_dict['env_params'] = {'vepp4E': 4730.0 }
 
 print(h_dict)
 
-fitter, data_fields = make_fit(config, h_dict)
+par = out_dir.replace("../output_", "").split("_")
+
+fitter, data_fields = make_fit(config, h_dict, par)
 
 fig, ax = init_figure('Laser Polarimeter 2D Fit')
 
@@ -472,4 +485,4 @@ plt.colorbar()
 
 plt.savefig(os.path.join(path, 'difference.png'), dpi = 150, bbox_inches='tight')
 plt.close()
-plt.show()
+#plt.show()

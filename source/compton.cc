@@ -56,7 +56,7 @@ std::tuple<double, double> Compton::Neumann(double P, double Q, double beta, boo
 	return {theta_x, theta_y};
 	}*/
 
-Compton::Compton(double E, unsigned seed)
+Compton::Compton(unsigned seed, double E)
 	: Energy(E)
 	, gamma(Energy/me)
 	, kappa(4.0*gamma*o/me)
@@ -85,13 +85,6 @@ std::tuple<double, double> Compton::Neumann(double P, double Q, double beta, boo
 		Qeff = -Q;
 	}
 
-
-
-
-
-
-
-		// Максимальный η для генерации (η=10 покрывает 98.8% распределения)
 	constexpr double ETA_MAX = 10.0;
 	const double s_max = ETA_MAX * ETA_MAX;
 	const double v_max = s_max / (1.0 + s_max + kappa);
@@ -126,7 +119,7 @@ std::tuple<double, double> Compton::Neumann(double P, double Q, double beta, boo
 		if (dist_u(gen) < bracket) {
 			double theta = eta / gamma;
 			//std::cout<<"ANGLE "<<theta<<std::endl;
-			return {theta * cos(phi), theta * sin(phi)}; 
+			return {theta*cos(phi),theta*sin(phi)}; 
 		}
 	}
 } 

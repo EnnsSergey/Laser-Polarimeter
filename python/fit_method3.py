@@ -432,7 +432,7 @@ class FitMethod3:
         self.minuit.values[parname]=value
         self.minuit.fixed[parname] = True
     
-    def fit(self, cfg):
+    def fit(self, cfg, pars):
         par_ini = cfg['model_params']
         par_val = {k: par_ini[k][0] for k, v in par_ini.items() if par_ini[k][0] != '*'}
         par_err = {k: par_ini[k][1] for k, v in par_ini.items() if par_ini[k][1] != '*'}
@@ -489,6 +489,50 @@ class FitMethod3:
         #print(dir(self.minuit))
         print(self.minuit.fmin) #Результат подгонки:EDM, сошлась-не сошлась
         print(self.minuit.params) #Печать полученных значений параметров в результате подгонки
+
+        print("ПАРАМЕТР P", self.minuit.values['P'])
+        print("ПАРАМЕТР Q", self.minuit.values['Q'])
+        print("ПАРАМЕТР beta", self.minuit.values['beta'])
+        print("разброс ", pars)
+        '''
+        file = open(f"fit_params/{pars[0]}_{pars[1]}.txt", "w")
+        #Cтрогий порядок вывода -- P, Q, beta
+        file.write(str(self.minuit.values['P'])+ "\n")
+        file.write(str(self.minuit.values['Q'])+ "\n")
+        file.write(str(self.minuit.values['beta'])+ "\n")
+        
+        file.close()
+        '''
+        Q = self.minuit.values['Q']
+        beta = self.minuit.values['beta']
+        beta = beta % (2*np.pi) # возвращение на окружность от 0 до 2pi
+        print("beta на окружности 0, 2pi ", beta)
+        sin = np.sin(beta)
+        cos = np.cos(beta)
+        
+        if sin > 0:
+            if cos > 0: # первый квадрант
+               print("first")
+            else: #второй
+                print("second")
+                beta = beta - np.pi/2 
+                Q = -Q
+        elif sin < 0:
+            if cos < 0: # третий
+                print("third")
+                beta = beta - np.pi
+            else: # четвёртый
+                print("fourth")
+                beta = beta - 3*np.pi/2
+                Q = -Q
+        
+        print("НОВЫЙ ПАРАМЕТР Q:", Q)
+        print("НОВЫЙ ПАРАМЕТР beta: ", beta)
+                
+        with open(f"fit_params/{pars[0]}_{pars[1]}.txt", "w") as file:
+            file.write(f"{self.minuit.values['P']} {self.minuit.errors['P']}  # P +- err\n")
+            file.write(f"{self.minuit.values['Q']} {self.minuit.errors['Q']}  # Q +- err\n")
+            file.write(f"{beta} {self.minuit.errors['beta']}  # beta +- err\n")
         #Напечатать корреляционную матрицу
         #print(self.minuit.covariance.correlation())
         self.ndf = np.shape(self.x[0])[0]*np.shape(self.x[1])[0]-self.minuit.nfit
