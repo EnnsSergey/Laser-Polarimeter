@@ -11,20 +11,21 @@
 #include "G4VisAttributes.hh"
 #include "detector.hh"
 #include "G4Tubs.hh"
+#include "params.hh"
 #include <vector>
 
 
 class DetectorConstruction : public G4VUserDetectorConstruction
 {
-  public:
-    DetectorConstruction();
-    ~DetectorConstruction();
+	public:
+		DetectorConstruction(const Params& params);
+		~DetectorConstruction();
 
-    virtual G4VPhysicalVolume* Construct();
-  private:
-    G4LogicalVolume* logicDet;
-    virtual void ConstructSDandField();
-
+		virtual G4VPhysicalVolume* Construct();
+	private:
+		G4LogicalVolume* logicDet;
+		virtual void ConstructSDandField();
+		Params fParams;
 
 };
 

@@ -2,7 +2,7 @@
 #include <cmath>
 #include "G4AssemblyVolume.hh"
 
-DetectorConstruction::DetectorConstruction()
+DetectorConstruction::DetectorConstruction(const Params& params) : fParams(params)
 {}
 
 DetectorConstruction::~DetectorConstruction()
@@ -10,8 +10,6 @@ DetectorConstruction::~DetectorConstruction()
 
 G4VPhysicalVolume* DetectorConstruction::Construct()
 {
-
-	struct GeometryConfig {
 		//фланец
 		G4double flange_diam = 40*mm;
 		G4double flange_thick = 1.5*mm;
@@ -32,7 +30,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		G4double conv_dist = 29.9*m;
 		G4double conv_sizeX = 161.4*mm;
 		G4double conv_sizeY = 50.35*mm;
-		G4double conv_sizeZ = 12*mm;
+		G4double conv_sizeZ = fParams.conv_thick; //12*mm;
 
 		//детектор
 		G4double det_sizeX = 161.4*mm;
@@ -43,33 +41,21 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		G4int padCols = 32;
 
 		G4double det_dist = conv_dist+conv_sizeZ; 
-		//расстояние между зеркалом и фланцем - 23 см
 
 		//расстояние между детектором и конвертером
 		G4double conv_det_dist = 0*mm;
 
-		G4double GetZsize (void)const{
-			return det_sizeZ + conv_sizeZ + conv_det_dist; 
-		}
-		GeometryConfig()
-		{
-			rotation = new G4RotationMatrix();
-			rotation->rotateY(mirror_angle);
-		}
-		~GeometryConfig()
-		{
-		}
-	};
+		G4double Zsize = det_sizeZ + conv_sizeZ + conv_det_dist; 
+		rotation = new G4RotationMatrix();
+		rotation->rotateY(mirror_angle);
 
-	GeometryConfig gc;
+		G4double worldSizeXY = 1.5 * mirrorDiam;
+		G4double worldSizeZ = 1.5 * det_dist;
 
-	G4double worldSizeXY = 1.5 * gc.mirrorDiam;
-	G4double worldSizeZ = 1.5 * gc.det_dist;
-
-	//вакуум
+		//вакуум
 
 	G4double vacuumSizeXY = worldSizeXY;
-	G4double vacuumSizeZ = gc.fl_dist;
+	G4double vacuumSizeZ = fl_dist;
 
 	// материалы:
 	G4NistManager* nist = G4NistManager::Instance();
@@ -94,13 +80,13 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	};
 
 	//солиды:
-	G4Box* solidConv = new G4Box("solidConv", 0.5*gc.conv_sizeX, 0.5*gc.conv_sizeY, 0.5*gc.conv_sizeZ);
+	G4Box* solidConv = new G4Box("solidConv", 0.5*conv_sizeX, 0.5*conv_sizeY, 0.5*conv_sizeZ);
 
 	G4Box* solidWorld = new G4Box("solidWorld", 0.5*worldSizeXY, 0.5*worldSizeXY, worldSizeZ);
 
-	G4Box* solidDet = new G4Box("solidDet", 0.5*gc.det_sizeX, 0.5*gc.det_sizeY, 0.5*gc.det_sizeZ);
+	G4Box* solidDet = new G4Box("solidDet", 0.5*det_sizeX, 0.5*det_sizeY, 0.5*det_sizeZ);
 
-	G4Tubs* solidFlange = new G4Tubs("solidFlange", 0.0, 0.5*gc.flange_diam, 0.5*gc.flange_thick, 0.0*deg, 360.0*deg);
+	G4Tubs* solidFlange = new G4Tubs("solidFlange", 0.0, 0.5*flange_diam, 0.5*flange_thick, 0.0*deg, 360.0*deg);
 
 	G4Box* solidVacuum = new G4Box("solidVacuum",0.5*vacuumSizeXY, 0.5*vacuumSizeXY, 0.5*vacuumSizeZ);
 
@@ -142,11 +128,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
 	G4VPhysicalVolume *physWorld = new G4PVPlacement(0, G4ThreeVector(0,0,0), logicWorld, "physWorld", 0, false, 0, true);
 
-	G4VPhysicalVolume *physConv = new G4PVPlacement(0, G4ThreeVector(0,0,gc.conv_dist+0.5*gc.conv_sizeZ), logicConv, "physConv", logicWorld, false, 0, true);
+	G4VPhysicalVolume *physConv = new G4PVPlacement(0, G4ThreeVector(0,0,conv_dist+0.5*conv_sizeZ), logicConv, "physConv", logicWorld, false, 0, true);
 
-	G4VPhysicalVolume* physDet = new G4PVPlacement(0, G4ThreeVector(0, 0, gc.det_dist+0.5*gc.det_sizeZ), logicDet, "physDet", logicWorld, false, 0, true);
+	G4VPhysicalVolume* physDet = new G4PVPlacement(0, G4ThreeVector(0, 0, det_dist+0.5*det_sizeZ), logicDet, "physDet", logicWorld, false, 0, true);
 
-	G4VPhysicalVolume* physFlange = new G4PVPlacement(0, G4ThreeVector(0,0,gc.fl_dist+0.5*gc.flange_thick), logicFlange, "physFlange", logicWorld, false, 0, true);
+	G4VPhysicalVolume* physFlange = new G4PVPlacement(0, G4ThreeVector(0,0,fl_dist+0.5*flange_thick), logicFlange, "physFlange", logicWorld, false, 0, true);
 
 	G4VPhysicalVolume* physVacuum = new G4PVPlacement(0, G4ThreeVector(0,0,0.5*vacuumSizeZ), logicVacuum, "physVacuum", logicWorld, false, 0, true);
 
@@ -155,7 +141,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
 	//ЗЕРКАЛО
 
-	G4double mirrorLayerZ = gc.mr_dist;
+	G4double mirrorLayerZ = mr_dist;
 
 	std::vector<G4Colour> mirrCol = 
 	{
@@ -167,26 +153,26 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	G4AssemblyVolume* mirror = new G4AssemblyVolume();	
 	
 	G4double totalThick = 0;
-	for (auto t : gc.mirrorThick) totalThick += t; //расчёт толщины зеркала
+	for (auto t : mirrorThick) totalThick += t; //расчёт толщины зеркала
 	G4double zPos = -totalThick/2; //локальная координа z начинается с -половины всей толщины, чтобы центр был в нуле
 
 	G4double vacuumCenter = 0.5 * vacuumSizeZ;
-	G4double mirrorRelZ = gc.mr_dist - vacuumCenter; // координата зеркала относительно вакуума
+	G4double mirrorRelZ = mr_dist - vacuumCenter; // координата зеркала относительно вакуума
 	for (int i = 0; i<4; i++)
 	{	
-		G4Tubs* solidMirr = new G4Tubs("solidMirr" + std::to_string(i), 0.0, 0.5 * gc.mirrorDiam, 0.5 * gc.mirrorThick[i], 0.0*deg, 360*deg);
+		G4Tubs* solidMirr = new G4Tubs("solidMirr" + std::to_string(i), 0.0, 0.5 * mirrorDiam, 0.5 * mirrorThick[i], 0.0*deg, 360*deg);
 		G4LogicalVolume* logicMirror = new G4LogicalVolume(solidMirr, mirrMat[i], "logicMirr" + std::to_string(i));
 
 		G4VisAttributes* mirrColour = new G4VisAttributes(mirrCol[i]);
 		mirrColour -> SetVisibility(true);
 		logicMirror -> SetVisAttributes(mirrColour);
 
-		G4ThreeVector pos(0,0,zPos + 0.5*gc.mirrorThick[i]);	
+		G4ThreeVector pos(0,0,zPos + 0.5*mirrorThick[i]);	
 		mirror -> AddPlacedVolume(logicMirror, pos, nullptr);
-		zPos += gc.mirrorThick[i];	
+		zPos += mirrorThick[i];	
 	}
 	G4ThreeVector mirrorPos = G4ThreeVector(0,0,mirrorRelZ);
-	mirror -> MakeImprint(logicVacuum, mirrorPos,  gc.rotation); // размещение и поворот
+	mirror -> MakeImprint(logicVacuum, mirrorPos,  rotation); // размещение и поворот
 	return physWorld;
 }
 

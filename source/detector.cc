@@ -24,13 +24,7 @@ G4bool SensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory* ROhist)
 		// Рассчитываем заряд (энергия/энергия ионизации)
 		G4double energyDeposit = step->GetTotalEnergyDeposit();
 		G4double ionizationEnergy = 30*eV;  // Для аргона
-		float charge = energyDeposit / ionizationEnergy;
-
-		// Определяем знак заряда
-		G4String particleName = track->GetParticleDefinition()->GetParticleName();
-		if(particleName == "e-") {
-			charge = -charge;  // Электроны дают отрицательный заряд
-		}
+		int charge = floor(energyDeposit / ionizationEnergy);
 
 		// Добавляем заряд в ReadOut
 		eventAction->readOut.AddCharge(particlePos.x(), particlePos.y(), charge);

@@ -23,8 +23,9 @@ void EventAction::EndOfEventAction(const G4Event* event)
 	for(int i = 0; i < ReadOut::YSIZE; i++) {
 		for(int j = 0; j < ReadOut::XSIZE; j++) {
 			if(abs(readOut.charge[i][j]) > 0) {  // Порог можно настроить
-				if (nEvent % 2 == 0){ fRunAction->histogram_r[i][j] += 1; }
-				else { fRunAction->histogram_l[i][j] += 1; }
+				fRunAction -> spectrum.push_back(abs(readOut.charge[i][j]));
+				if (nEvent % 2 == 0){ fRunAction->histogram_l[i][j] += 1; }
+				else { fRunAction->histogram_r[i][j] += 1; }
 			}
 		}
 	}

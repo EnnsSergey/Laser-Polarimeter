@@ -13,6 +13,127 @@
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{caption}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    backgroundcolor=\color{lightgray!10},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=true,
+    frame=single,
+    rulecolor=\color{black!30},
+    extendedchars=true,
+    inputencoding=utf8,
+    keepspaces=true,
+    literate=
+    {а}{{\cyra}}1
+    {б}{{\cyrb}}1
+    {в}{{\cyrv}}1
+    {г}{{\cyrg}}1
+    {д}{{\cyrd}}1
+    {е}{{\cyre}}1
+    {ё}{{\cyryo}}1
+    {ж}{{\cyrzh}}1
+    {з}{{\cyrz}}1
+    {и}{{\cyri}}1
+    {й}{{\cyrishrt}}1
+    {к}{{\cyrk}}1
+    {л}{{\cyrl}}1
+    {м}{{\cyrm}}1
+    {н}{{\cyrn}}1
+    {о}{{\cyro}}1
+    {п}{{\cyrp}}1
+    {р}{{\cyrr}}1
+    {с}{{\cyrs}}1
+    {т}{{\cyrt}}1
+    {у}{{\cyru}}1
+    {ф}{{\cyrf}}1
+    {х}{{\cyrh}}1
+    {ц}{{\cyrc}}1
+    {ч}{{\cyrch}}1
+    {ш}{{\cyrsh}}1
+    {щ}{{\cyrshch}}1
+    {ъ}{{\cyrhrdsn}}1
+    {ы}{{\cyrery}}1
+    {ь}{{\cyrsftsn}}1
+    {э}{{\cyrerev}}1
+    {ю}{{\cyryu}}1
+    {я}{{\cyrya}}1
+    {А}{{\CYRA}}1
+    {Б}{{\CYRB}}1
+    {В}{{\CYRV}}1
+    {Г}{{\CYRG}}1
+    {Д}{{\CYRD}}1
+    {Е}{{\CYRE}}1
+    {Ё}{{\CYRYO}}1
+    {Ж}{{\CYRZH}}1
+    {З}{{\CYRZ}}1
+    {И}{{\CYRI}}1
+    {Й}{{\CYRISHRT}}1
+    {К}{{\CYRK}}1
+    {Л}{{\CYRL}}1
+    {М}{{\CYRM}}1
+    {Н}{{\CYRN}}1
+    {О}{{\CYRO}}1
+    {П}{{\CYRP}}1
+    {Р}{{\CYRR}}1
+    {С}{{\CYRS}}1
+    {Т}{{\CYRT}}1
+    {У}{{\CYRU}}1
+    {Ф}{{\CYRF}}1
+    {Х}{{\CYRH}}1
+    {Ц}{{\CYRC}}1
+    {Ч}{{\CYRCH}}1
+    {Ш}{{\CYRSH}}1
+    {Щ}{{\CYRSHCH}}1
+    {Ъ}{{\CYRHRDSN}}1
+    {Ы}{{\CYRERY}}1
+    {Ь}{{\CYRSFTSN}}1
+    {Э}{{\CYREREV}}1
+    {Ю}{{\CYRYU}}1
+    {Я}{{\CYRYA}}1
+    {№}{{\textnumero}}1
+    {°}{{\deg}}1
+    {µ}{{\textmu}}1
+    {∞}{{\infty}}1
+    {±}{{\pm}}1
+    {×}{{\times}}1
+    {≈}{{\approx}}1
+    {≤}{{\leq}}1
+    {≥}{{\geq}}1
+    {→}{{\rightarrow}}1
+    {←}{{\leftarrow}}1
+    {↔}{{\leftrightarrow}}1
+    {⇒}{{\Rightarrow}}1
+    {⇐}{{\Leftarrow}}1
+    {⇔}{{\Leftrightarrow}}1
+    {α}{{\alpha}}1
+    {β}{{\beta}}1
+    {γ}{{\gamma}}1
+    {δ}{{\delta}}1
+    {ε}{{\varepsilon}}1
+    {θ}{{\theta}}1
+    {λ}{{\lambda}}1
+    {μ}{{\mu}}1
+    {π}{{\pi}}1
+    {σ}{{\sigma}}1
+    {φ}{{\varphi}}1
+    {ω}{{\omega}}1
+}
 \graphicspath{ {./pictures/} {./} }
 \begin{document}
 
@@ -21,6 +142,8 @@
 \date{\today}
 \maketitle
 
+\tableofcontents
+\newpage
 \section*{Введение}
 
 Одна из задач физики элементарных частиц состоит в изучении и дополнении
@@ -299,7 +422,7 @@ $\mu'$ -- аномальный магнитный момент, $\mu_0$ -- ма�
 \end{equation}
 
 
-\subsubsection{Зависимость от поляризации}
+\subsubsection{Сечение с учётом поляризации}
 
 \textbf{Линейная поляризация}
 
@@ -580,6 +703,56 @@ G(\eta) = \frac{\eta^2}{1 + \eta^2 + \kappa}.
           (метод Неймана). Иначе повторяем сначала.
 \end{enumerate}
 
+\subsubsection{Код для моделирования}
+\begin{lstlisting}[language=C++]
+    std::tuple<double, double> Compton::Neumann(double P, double Q, double beta, bool pol)
+{
+	double V, Qeff;
+	if (pol) {
+		V = sqrt(1.0 - Q*Q);
+		Qeff = Q;
+	} else {
+		V = -sqrt(1.0 - Q*Q);
+		Qeff = -Q;
+	}
+
+	constexpr double ETA_MAX = 10.0;
+	const double s_max = ETA_MAX * ETA_MAX;
+	const double v_max = s_max / (1.0 + s_max + kappa);
+
+	
+	constexpr double B_MAX = 1.1; // с запасом
+
+	std::uniform_real_distribution<> dist_v(0.0, v_max);
+	std::uniform_real_distribution<> dist_phi(0.0, 2.0 * M_PI);
+	std::uniform_real_distribution<> dist_u(0.0, B_MAX);
+
+	while (true) {
+
+		double v = dist_v(gen);
+		double eta2 = (1.0 + kappa) * v / (1.0 - v);
+		double eta = sqrt(eta2);
+
+
+		double phi = dist_phi(gen);
+
+
+		double t = 1.0 + eta2 + kappa;
+		double q = 1.0 + eta2;
+		double eta_over_q = eta / q;
+		double bracket = 1.0
+			+ 0.5 * kappa*kappa / (t * q)
+			- 2.0 * eta_over_q * eta_over_q * (1.0 - Qeff * cos(2.0*(phi - beta)))
+			+ P * V * eta * kappa / (t * q) * sin(phi);
+
+		if (dist_u(gen) < bracket) {
+			double theta = eta / gamma;
+
+			return {theta*cos(phi),theta*sin(phi)}; 
+		}
+	}
+} 
+\end{lstlisting}
 
 \subsubsection{Проверка моделирования}
 
@@ -856,87 +1029,7 @@ $\beta$ (рад) & 0,7 & $ 0,6998 \pm 0,0010 $ & $0,2 \sigma$ \\
 \begin{equation}
     \sqrt{\overline{\theta^2}} = \frac{21\ \text{МэВ}}{p\beta c} \sqrt{\frac{x}{X_0}}.
 \end{equation}
-\section{Моделирование в Geant4}
 
-В этом разделе будет проделано моделирование прохождения рассеянных жёстких фотонов через экспериментальную установку.
-\subsection{Геометрия установки}
-Установка включает в себя следующие ключевые элементы:
-\begin{itemize}
-\item \textbf{Фланец вакуумной трубы}: диаметр --- 40 мм, толщина --- 1,5 мм.
-\item \textbf{Зеркало:} диаметр --- 100 мм, толщина медного зеркала --- 4 мм, толщина водного слоя --- 17 мм, толщина стальных стенок (по обе стороны водного слоя) --- 1 мм.
-\item \textbf{Конвертер:} материал --- свинец, толщина --- 12 мм), ширина --- 161,4 мм, высота --- 50,35 мм. Расположен на расстоянии 29,9 м от области взаимодействия лазера с пучком.
-\item \textbf{Упрощённая модель детектора:} на данном этапе представлена тонким слоем аргона, регистрирующим координаты (x, y) заряженных частиц. Полноценная модель ГЭУ с падами и лавинным умножением будет реализована на следующем этапе.
-
-\end{itemize}
-\begin{figure}[H]
-\centering
-\includegraphics[scale=0.7]{pictures/material_scheme-1.png}
-\caption{Схематичное изображение установки.}
-\end{figure}
-
-\subsection{Реализация физики}
-
-
-Для корректной реализации всех электромагнитных процессов, в основном --- ливней в конвертере, в Geant4 выбран список физики для электромагнетизма. Он включает:
-\begin{itemize}
-\item Для фотонов: фотоэффект, комптоновское рассеяние, рождение пар.
-\item Для электронов/позитронов: ионизационные потери, тормозное излучение, множественное рассеяние.
-\begin{figure}[H]
-\centering
-\includegraphics[scale=0.4]{pictures/rain.png}
-\caption{Ливень в конвертере.}
-\end{figure}
-\end{itemize}
-
-
-\subsection{Конвертер}
-Конвертер нужен для превращения фотонов в электрон-позитронные пары, которые проще детектировать. Как мы видим, для энергии фотонов в нашем эксперименте рождение пар преобладает над другими процессами, что оправдывает использование конвертера. Эффективность конвертера тем выше, чем сильнее фотоны взаимодействуют с металлом. Посмотрим как зависит вероятность взаимодействия от толщины для разных металлов. 
-\subsubsection{Вероятность взаимодействия фотона с веществом}
-Для этого проведём следующее моделирование в Geant4: разместим конвертер заданной толщины и материала на пути к фотонам и будем считать количество провзаимодействовавших с ним. 
-Ниже приведена таблица, в которой отражена зависимость числа провзаимодействовавших фотонов от толщины разных металлов.
-\\
-Количество налетающих фотонов -- 100 000.
-
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\linewidth]{pictures/fbc984ea-c7c6-41c1-b77b-5bc2c498663d.jpeg}
-    \caption{Зависимость вероятности взаимодействия $\gamma-$кванта с энергией 800 МэВ с различными металлами от их толщины. }
-    \label{fig:prob}
-\end{figure}
-\subsubsection{Оптимальная толщина конвертера}
-Конвертер служит для преобразования фотонов в электрон-позитронные пары. 
-Далее заряженные частицы фиксируются на детекторе, на основе этих данных проводится подгонка изначального распределения фотонов.
-В области малых толщин эффективность подгонки быстро растёт, поскольку большее число фотонов участвует в рождении пар, что увеличивает количество регистрируемых событий. Однако при больших толщинах количество взаимодействующих фотонов выходит на плато и начинает доминировать многократное рассеяние электронов и другие электромагнитные процессы, приводящие к уширению пятна и постепенной потере информации о поляризации.
-
-Зависимость эффективности подгонки поляризации 
-\[
-\frac{P^*}{\sigma_{P^*}}
-\]
-от толщины конвертера хорошо аппроксимируется гамма-распределением 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\linewidth]{fitting.png}
-    \caption{Зависимость эффективности подгонки поляризации от толщины конвертера из свинца/вольфрама}
-    \label{fig:wolphram}
-\end{figure}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{l|c|c|}
-\cline{2-3}
-                     & $\chi^2/ndf$          & Оптимальная толщина, мм          \\ \hline
-\multicolumn{1}{|l|}{Свинец} & 2,272 & 15,56\\ \hline
-\multicolumn{1}{|l|}{Вольфрам} & 1,406  & 10,78 \\ \hline
-\end{tabular}
-\end{table}
-
-По графику видно, что гамма-распределение хорошо подгоняет данные, но $\chi^2$ слишком велик. Это происходит из-за проблем с моделью при подгонке. Возникает систематическая ошибка.
-
-Также из графика видно, что смена свинцового конвертера на вольфрамовый не даёт сильного повышения эффективности, а значит в этом нет нужды. 
-\subsection{Детектор}
-\subsubsection{Порог заряда на детекторе.}
-Сначала построим гистограмму заряда на падах.
 \section{Обработка данных}
 
 Данные на детекторе
@@ -970,6 +1063,435 @@ $\beta$ (рад) & 0,7 & $ 0,6998 \pm 0,0010 $ & $0,2 \sigma$ \\
     B^*(x,y) = \mathcal{F}^{-1}\left(\dfrac{\widehat{D}}{\widehat{C}}\cdot R\right)
 \end{equation}
 $k \approx 10^{-4} -$ параметр регуляризации.
+\section{Моделирование в Geant4}
+
+В этом разделе будет проделано моделирование прохождения рассеянных жёстких фотонов через экспериментальную установку.
+
+\subsection{Геометрия установки}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.7]{pictures/material_scheme-1.png}
+    \caption{Схематичное изображение установки.}
+    \label{fig:setup_scheme}
+\end{figure}
+
+Схема реальной экспериментальной установки показана на рис.~\ref{fig:setup_scheme}. При моделировании геометрии в Geant4 допустим ряд упрощений. Поскольку сцинтиллятор очень тонкий и слабо взаимодействует с излучением, его можно исключить из модели. Кроме того, излучение сосредоточено в узком конусе с угловым раствором $1/\gamma$, поэтому подавляющая часть фотонов не достигает боковых стенок вакуумной камеры --- это позволяет оставить в модели только фланец.
+
+\subsubsection{Параметры элементов установки}
+
+Основные геометрические размеры элементов, используемые при построении модели, сведены в табл.~\ref{tab:geom_params}. Все расстояния отсчитываются вдоль оси $z$ от области взаимодействия лазерного излучения с электронным пучком.
+
+\begin{table}[H]
+    \centering
+    \caption{Геометрические параметры элементов установки}
+    \label{tab:geom_params}
+    \begin{tabular}{lll}
+        \hline
+        \textbf{Элемент} & \textbf{Параметр} & \textbf{Значение} \\
+        \hline
+        Фланец вакуумной трубы & диаметр & 40\,мм \\
+                              & толщина & 1{,}5\,мм \\
+        \hline
+        Зеркало               & диаметр & 100\,мм \\
+                              & слой меди & 4\,мм \\
+                              & слой воды & 17\,мм \\
+                              & стальные стенки (×2) & 1\,мм каждая \\
+        \hline
+        Конвертер (Pb)        & толщина & 12\,мм \\
+                              & ширина & 161{,}4\,мм \\
+                              & высота & 50{,}35\,мм \\
+                              & расстояние до взаимодействия & 29{,}9\,м \\
+        \hline
+        Детектор (Ar, упрощ.) & толщина & 3\,мм \\
+                              & ширина & 161{,}4\,мм \\
+                              & высота & 50{,}35\,мм \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Зеркало расположено под углом $45^\circ$ к оси пучка и в упрощённом виде для моделирования представляет собой четырёхслойную структуру: само медное зеркало, стальная стенка, водный слой и вторая стальная стенка. Расстояние от области взаимодействия до фланца составляет 8{,}835\,м, а зазор между фланцем и зеркалом --- 230\,мм.
+
+Упрощённая модель детектора на данном этапе --- тонкий слой аргона, регистрирующий координаты $(x, y)$ заряженных частиц. Полноценная модель ГЭУ с падовой структурой и лавинным умножением планируется к реализации на следующем этапе работы.
+
+\subsubsection{Программная реализация геометрии}
+
+Описание геометрических параметров в Geant4:
+
+\begin{lstlisting}[language=C++, caption={Геометрические параметры}, label=lst:config]
+    // Фланец
+    G4double flange_diam  = 40*mm;
+    G4double flange_thick = 1.5*mm;
+
+    // Зеркало
+    G4double mirrorDiam = 100*mm;
+    std::vector<G4double> mirrorThick = {4*mm, 1*mm, 17*mm, 1*mm};
+    
+    // Позиционирование вдоль оси z
+    G4double fl_dist    = 8.835*m;      // расстояние до фланца
+    G4double d_fl_mirr  = 230*mm;       // зазор фланец--зеркало
+    G4double mr_dist    = fl_dist - d_fl_mirr; // расстояние до зеркала
+
+    // Поворот зеркала на 45 градусов вокруг оси Y
+    G4double mirror_angle = 45.0*deg;
+    G4RotationMatrix* rotation;
+
+    // Конвертер
+    G4double conv_dist  = 29.9*m;
+    G4double conv_sizeX = 161.4*mm;
+    G4double conv_sizeY = 50.35*mm;
+    G4double conv_sizeZ = 12*mm;
+
+    // Детектор
+    G4double det_sizeX = 161.4*mm;
+    G4double det_sizeY = 50.35*mm;
+    G4double det_sizeZ = 3*mm;
+    G4double det_dist  = conv_dist + conv_sizeZ;
+
+    // Инициализация матрицы поворота в конструкторе
+        rotation = new G4RotationMatrix();
+        rotation->rotateY(mirror_angle);
+\end{lstlisting}
+
+Мировая область (World) заполняется воздухом и имеет размеры, превышающие с запасом габариты всех элементов установки. Внутри неё размещается вакуумный объём, простирающийся от области взаимодействия до фланца, имитируя вакуумную трубу. Материалы задаются через менеджер NIST (листинг~\ref{lst:materials}).
+
+\begin{lstlisting}[language=C++, caption={Определение материалов через G4NistManager}, label=lst:materials]
+G4NistManager* nist = G4NistManager::Instance();
+
+G4Material* worldMat  = nist->FindOrBuildMaterial("G4_AIR");
+G4Material* vacuum    = nist->FindOrBuildMaterial("G4_Galactic");
+G4Material* convMat   = nist->FindOrBuildMaterial("G4_Pb");
+G4Material* flMat     = nist->FindOrBuildMaterial("G4_Fe");
+G4Material* detMat    = nist->FindOrBuildMaterial("G4_Ar");
+
+// Зеркало: медь, сталь, вода, сталь
+std::vector<G4Material*> mirrMat = {
+    nist->FindOrBuildMaterial("G4_Cu"),
+    nist->FindOrBuildMaterial("G4_Fe"),
+    nist->FindOrBuildMaterial("G4_WATER"),
+    nist->FindOrBuildMaterial("G4_Fe")
+};
+\end{lstlisting}
+
+Геометрические тела создаются как простейшие формы: фланец --- цилиндр (\texttt{G4Tubs}), конвертер и детектор --- параллелепипеды (\texttt{G4Box}). Каждое тело связывается с соответствующим материалом на уровне логического объёма и размещается в мировом объёме вызовом \texttt{G4PVPlacement} (листинг~\ref{lst:placement}).
+
+\begin{lstlisting}[language=C++, caption={Создание и размещение основных объёмов}, label=lst:placement]
+// Солиды
+G4Tubs* solidFlange = new G4Tubs("solidFlange", 0.0,
+    0.5*flange_diam, 0.5*flange_thick, 0.0*deg, 360.0*deg);
+
+G4Box* solidConv = new G4Box("solidConv",
+    0.5*conv_sizeX, 0.5*conv_sizeY, 0.5*conv_sizeZ);
+
+G4Box* solidDet = new G4Box("solidDet",
+    0.5*det_sizeX, 0.5*det_sizeY, 0.5*det_sizeZ);
+
+// Логические объёмы
+G4LogicalVolume* logicFlange =
+    new G4LogicalVolume(solidFlange, flMat, "logicFlange");
+G4LogicalVolume* logicConv =
+    new G4LogicalVolume(solidConv, convMat, "logicConv");
+logicDet = new G4LogicalVolume(solidDet, detMat, "logicDet");
+
+// Физические размещения (z-координаты от области взаимодействия)
+new G4PVPlacement(0, G4ThreeVector(0,0, fl_dist+0.5*flange_thick),
+    logicFlange, "physFlange", logicWorld, false, 0, true);
+
+new G4PVPlacement(0, G4ThreeVector(0,0, conv_dist+0.5*conv_sizeZ),
+    logicConv, "physConv", logicWorld, false, 0, true);
+
+new G4PVPlacement(0, G4ThreeVector(0,0, det_dist+0.5*det_sizeZ),
+    logicDet, "physDet", logicWorld, false, 0, true);
+\end{lstlisting}
+
+\subsubsection{Сборка и позиционирование зеркала}
+
+Особого внимания заслуживает зеркало. Поскольку оно состоит из четырёх слоёв различных материалов и должно быть повёрнуто на $45^\circ$ относительно оси пучка, для его построения используется класс \texttt{G4AssemblyVolume} (листинг~\ref{lst:mirror}). Данный подход позволяет сгруппировать слои в единую сборку, разместить её внутри вакуумного объёма и одним вызовом применить матрицу поворота.
+
+\begin{lstlisting}[language=C++, caption={Построение многослойного зеркала через G4AssemblyVolume}, label=lst:mirror]
+G4AssemblyVolume* mirror = new G4AssemblyVolume();
+
+// Суммарная толщина зеркала
+G4double totalThick = 0;
+for (auto t : mirrorThick) totalThick += t;
+
+// Начальное смещение: чтобы центр сборки совпал с геометрическим
+G4double zPos = -totalThick / 2;
+
+for (int i = 0; i < 4; i++) {
+    G4Tubs* solidMirr = new G4Tubs("solidMirr", 0.0,
+        0.5 * mirrorDiam, 0.5 * mirrorThick[i], 0.0*deg, 360*deg);
+    G4LogicalVolume* logicMirror =
+        new G4LogicalVolume(solidMirr, mirrMat[i], "logicMirr");
+
+    G4ThreeVector pos(0, 0, zPos + 0.5 * mirrorThick[i]);
+    mirror->AddPlacedVolume(logicMirror, pos, nullptr);
+    zPos += mirrorThick[i];
+}
+
+// Координата зеркала относительно центра вакуумного объёма
+G4double vacuumCenter = 0.5 * vacuumSizeZ;
+G4double mirrorRelZ = mr_dist - vacuumCenter;
+G4ThreeVector mirrorPos(0, 0, mirrorRelZ);
+
+// Размещение с поворотом
+mirror->MakeImprint(logicVacuum, mirrorPos, rotation);
+\end{lstlisting}
+
+Все элементы установки схематично показаны на рис.??, а их пространственное расположение вдоль оси $z$ (от области взаимодействия к детектору) соответствует значениям расстояний из табл.~\ref{tab:geom_params}: вакуумный промежуток, фланец, зеркало, конвертер и аргоновый детектор.
+\subsection{Реализация физики}
+
+
+Для корректной реализации всех электромагнитных процессов, в основном --- ливней в конвертере, в Geant4 выбран список физики для электромагнетизма. Он включает:
+\begin{itemize}
+\item Для фотонов: фотоэффект, комптоновское рассеяние, рождение пар.
+\item Для электронов/позитронов: ионизационные потери, тормозное излучение, множественное рассеяние.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{pictures/rain.png}
+\caption{Ливень в конвертере.}
+\end{figure}
+\end{itemize}
+Все эти процессы входят в стандартный список с электромагнетизмом 
+\begin{lstlisting}[language=C++, caption={Добавление стандартного списка ЭМ физики}]
+    RegisterPhysics(new G4EmStandardPhysics());
+\end{lstlisting}
+
+\subsection{Конвертер}
+Конвертер нужен для превращения фотонов в электрон-позитронные пары, которые проще детектировать. Как мы видим, для энергии фотонов в нашем эксперименте рождение пар преобладает над другими процессами, что оправдывает использование конвертера. Эффективность конвертера тем выше, чем сильнее фотоны взаимодействуют с металлом. Посмотрим как зависит вероятность взаимодействия от толщины для разных металлов. 
+\subsubsection{Вероятность взаимодействия фотона с веществом}
+Для этого проведём следующее моделирование в Geant4: разместим конвертер заданной толщины и материала на пути к фотонам и будем считать количество провзаимодействовавших с ним. 
+Ниже приведена таблица, в которой отражена зависимость числа провзаимодействовавших фотонов от толщины разных металлов.
+\\
+Количество налетающих фотонов -- 100 000.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{pictures/fbc984ea-c7c6-41c1-b77b-5bc2c498663d.jpeg}
+    \caption{Зависимость вероятности взаимодействия $\gamma-$кванта с энергией 800 МэВ с различными металлами от их толщины. }
+    \label{fig:prob}
+\end{figure}
+\subsubsection{Оптимальная толщина конвертера}
+Конвертер служит для преобразования фотонов в электрон-позитронные пары. 
+Далее заряженные частицы фиксируются на детекторе, на основе этих данных проводится подгонка изначального распределения фотонов.
+В области малых толщин эффективность подгонки быстро растёт, поскольку большее число фотонов участвует в рождении пар, что увеличивает количество регистрируемых событий. Однако при больших толщинах количество взаимодействующих фотонов выходит на плато и начинает доминировать многократное рассеяние электронов и другие электромагнитные процессы, приводящие к уширению пятна и постепенной потере информации о поляризации.
+
+Зависимость эффективности подгонки поляризации 
+\[
+\frac{P^*}{\sigma_{P^*}}
+\]
+от толщины конвертера хорошо аппроксимируется гамма-распределением с добавлением амплитуды $A$
+\begin{equation}
+    f(x) = A \dfrac{x^{k-1}e^{-\frac{x}{\theta}}}{\theta^k\Gamma(k)}, \quad x \ge 0
+\end{equation}
+Мода гамма-распределения
+\begin{equation}
+    x_0 = \theta(k-1) \quad \text{при }k\ge1
+\end{equation}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{fitting.png}
+    \caption{Зависимость эффективности подгонки поляризации от толщины конвертера из свинца/вольфрама}
+    \label{fig:wolphram}
+\end{figure}
+Ошибка оптимальной толщины 
+
+\begin{equation}
+    \Delta x_0 = \dfrac{\partial x_0}{\partial k}\Delta k + \dfrac{\partial x_0}{\partial \theta}\Delta \theta
+\end{equation}
+где $\dfrac{\partial x_0}{\partial k}=\theta,\quad\dfrac{\partial x_0}{\partial \theta}=k-1$.
+
+Найдём дисперсию
+\begin{equation}
+    Dx_0 = \mathbb{E}[(\Delta x_0)^2] = \theta^2 \mathbb{E}\left[\Delta k^2 \right] + (k-1)^2\mathbb{E}\left[ \Delta \theta^2 \right]+ 2\theta(k-1)\mathbb{E}\left[ \Delta k \Delta \theta\right] 
+\end{equation}
+\begin{equation}
+    \sigma^2_{x_0} = \theta^2 \sigma^2_k + (k-1)^2\sigma^2_{\theta}+ 2\theta(k-1)\text{cov}(k,\theta)
+\end{equation}
+\begin{table}[H]
+\centering
+\begin{tabular}{l|c|c|}
+\cline{2-3}
+                     & $\chi^2/ndf$          & Оптимальная толщина, мм          \\ \hline
+\multicolumn{1}{|l|}{Свинец} & 2.421 & 15.12 ± 0.20\\ \hline
+\multicolumn{1}{|l|}{Вольфрам} & 2.394  & 10.24 ± 0.16  \\ \hline
+\end{tabular}
+\end{table}
+
+По графику видно, что гамма-распределение хорошо подгоняет данные, но $\chi^2$ слишком велик. Это происходит из-за проблем с моделью при подгонке. Возникает систематическая ошибка.
+
+Также из графика видно, что смена свинцового конвертера на вольфрамовый не даёт сильного повышения эффективности, а значит в этом нет нужды. 
+
+\subsection{Детектор}
+\subsubsection{Реализация детектора}
+Логический объём детектора наделяется свойством быть чувствительным детектором
+\begin{lstlisting}[language=C++, caption={Чувствительный детектор}]
+    SensitiveDetector* sensDet = new SensitiveDetector("SensitiveDetector");
+    logicDet->SetSensitiveDetector(sensDet);
+\end{lstlisting}
+
+Метод \texttt{ProcessHits} из класса \texttt{G4VSensitiveDetector} вызывается на каждом шагу частицы внутри чувствительного объёма и собирает основную информацию о взаимодействии.
+
+\begin{lstlisting}[language=C++, caption={ProcessHits}]
+G4bool SensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory* ROhist)
+{
+	G4Track* track = step -> GetTrack();
+
+	G4StepPoint* preStepPoint = step->GetPreStepPoint();
+	G4StepPoint* postStepPoint = step->GetPostStepPoint();
+
+	G4ThreeVector particlePos = preStepPoint->GetPosition();
+
+	auto eventManager = G4EventManager::GetEventManager();
+	auto eventAction = static_cast<EventAction*>(eventManager->GetUserEventAction());
+
+	if(eventAction) {
+		// Рассчитываем заряд (энергия/энергия ионизации)
+		G4double energyDeposit = step->GetTotalEnergyDeposit();
+		G4double ionizationEnergy = 30*eV;  // Для аргона
+		float charge = energyDeposit / ionizationEnergy;
+
+		// Добавляем заряд в ReadOut
+		eventAction->readOut.AddCharge(particlePos.x(), particlePos.y(), charge);
+	}
+	const G4VTouchable* touchable = step -> GetPreStepPoint() -> GetTouchable();
+	return true;
+}   
+\end{lstlisting}
+Мы детектируем электроны, которые появились в результате ионизации вещества в дрейфовом промежутке. Суммарный их заряд, попавший на пад вычисляется как отношение выделенной энергии и энергии ионизации.
+Координаты частицы в веществе можно найти методом \texttt{GetPosition()}. Далее нам нужно поставить в соответствие координатам номер пада детектора. 
+
+\begin{lstlisting}[language=C++, caption={Запись хита}]
+    class ReadOut
+{
+    public:
+        constexpr static size_t XSIZE = 32;    // 32 пада по X
+        constexpr static size_t YSIZE = 20;    // 20 падов по Y
+        constexpr static float X_SIZE = 64*mm; // Размер детектора по X
+        constexpr static float Y_SIZE = 20*mm;  // Размер детектора по Y
+        
+        std::array<std::array<float, XSIZE>, YSIZE> charge;
+        
+        ReadOut(void)
+        {
+            // Инициализация нулями
+            for(auto& row : charge)
+                row.fill(0.0);
+        }
+        
+        float& operator() (float x, float y) 
+        {
+            // Преобразование координат в индексы падов
+            int j = floor(x * (XSIZE/X_SIZE)) + 0.5 * XSIZE; 
+            int i = floor(y * (YSIZE/Y_SIZE)) + YSIZE * 0.5;
+            
+            // Проверка границ
+            if(i < 0) i = 0;
+            if(i >= YSIZE) i = YSIZE - 1;
+            if(j < 0) j = 0;
+            if(j >= XSIZE) j = XSIZE - 1;
+            
+            return charge[i][j];
+        }
+        
+        void AddCharge(float x, float y, float q)
+        {
+            // Проверка выхода за пределы детектора
+            if(std::abs(x) > 0.5*X_SIZE || std::abs(y) > 0.5*Y_SIZE) return;
+            (*this)(x, y) += q;
+        }
+        
+        void Clear()
+        {
+            for(auto& row : charge)
+                row.fill(0.0);
+        }
+};
+\end{lstlisting}
+Итак, детектирование частиц работает следующим образом: частица попадает в объём детектора; записываются её координаты; записывается сколько энергия она потеряла; вычисляется заряд электронов ионизации; заряд записывается в ячейку, соответствующую координате. Фотоны не детектируются потому что на таких энергиях фотоэффекта нет и они напрямую не могут ионизировать вещество.
+
+\subsubsection{Порог заряда на детекторе.}
+
+В реальном детекторе на падах есть порог, чтобы минимизировать шум. Изучим как в моделировании величина порога влияет на подгонку.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{distr.png}
+    \caption{Плотность вероятности для заряда на паде}
+    \label{fig:placeholder}
+\end{figure}
+
+
+\subsubsection{Газовый электронный умножитель}
+Известен коэффициент диффузии -- $D = \dfrac{300  \ \mu}{\sqrt{cm}}$.
+Радиус пятна оценивается как 
+\begin{equation}
+    \sigma_{spot} = D \sqrt{|z_{pad} - z_{hit}|}
+\end{equation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{Schematic-cross-section-view-of-a-triple-GEM-detector-24.png}
+    \caption{Схема трёхкаскадного ГЭУ}
+    \label{fig:placeholder}
+\end{figure}
+
+Оценим вклад диффузии в расплывание пятна. 
+Усреднённая дисперсия 
+\begin{equation}
+    \left< \sigma^2_{spot} \right> = \dfrac{1}{2} D^2 L_{max}
+\end{equation}
+где $L_{max} \approx 9 \ mm$ -- максимальное расстояние между падом и хитом.
+Итак, среднеквадратичный радиус пятна равен
+\begin{equation}
+    \sigma_{rms} \approx 201.2 \ \mu \approx 0.2 \ mm
+\end{equation}
+Вклад диффузии около $20 \%$.
+\subsection{Пушка фотонов}
+
+С помощью метода \texttt{FindParticle} класса \texttt{G4ParticleTable} выбираем $\gamma$-квант
+\begin{lstlisting}[language=C++]
+    G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+    G4String particleName = "gamma";
+    G4ParticleDefinition* particle = particleTable->FindParticle(particleName);
+\end{lstlisting}
+
+Чтобы смоделировать рассеяние фотона на электроне с учётом разброса по координате в пучке, просто будем размещать вылетающий фотон в координате, смоделированной по гауссу с этим разбросом
+\begin{lstlisting}[language=C++]
+    G4ThreeVector pos(G4RandGauss::shoot(0, fParams.sigma_x), G4RandGauss::shoot(0, fParams.sigma_y), 0);	
+    fParticleGun->SetParticlePosition(pos);
+\end{lstlisting}
+
+Моделирование энергии и направления:
+\begin{lstlisting}
+    G4int nEvent = event -> GetEventID();
+	bool pol =(nEvent % 2 == 0);
+
+	std::tuple<double, double>  angles = compt.Neumann(fParams.P, fParams.Q, fParams.beta, pol);
+	double theta_x = std::get<0>(angles);
+	double theta_y = std::get<1>(angles);
+
+	double disp_x = G4RandGauss::shoot(0, fParams.d_theta_x);
+	double disp_y = G4RandGauss::shoot(0, fParams.d_theta_y);
+
+	double theta_e = sqrt(disp_x*disp_x + disp_y*disp_y);        // угол электрона
+
+	double theta = sqrt(theta_x*theta_x + theta_y*theta_y);
+	// проекции полного угла отклонения фотона
+	
+	double beta = sqrt(1 - 1/(compt.gamma * compt.gamma));
+	
+	double bracket1 = 1 - (theta_e*theta_e)/2;
+	double bracket2 = 1 - (theta * theta) / 2;
+	double bracket3 = 2 - ((theta_x + disp_x)*(theta_x+disp_x) + (theta_y + disp_y)*(theta_y + disp_y))/2;
+	double PhotonEnergy = (compt.o) * (1 + beta * bracket1) / (1 - beta * bracket2 + compt.o * bracket3/compt.get_energy());
+
+	fParticleGun -> SetParticleMomentum(PhotonEnergy * MeV);
+
+	G4ThreeVector mom(theta_x + disp_x, theta_y + disp_y, 1); 
+	
+	fParticleGun->SetParticleMomentumDirection(mom);
+\end{lstlisting}
+
 \section{Исследование}
 В этом разделе изучается эффективность обработки данных при разных параметрах.
 \subsection{Реальный разброс в пучке}
@@ -980,7 +1502,14 @@ $k \approx 10^{-4} -$ параметр регуляризации.
     \caption{Обработка данных эксперимента}
     \label{fig:placeholder}
 \end{figure}
-Максимум сдвинут по x на 4 мм, по y на 1,5 мм. Ширина по x -- 21,5 мм; по y -- 9,7 мм.
+Возьмём значения параметров из результатов этой подгонки и проведём моделирование при разных углах. 
+При разбросе $\sigma_{x'} = 230$ мкрад, $\sigma_{y'} = 70$ мкрад размер пятна близок к экспериментальному.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.\linewidth]{230_70.png}
+    \label{fig:placeholder}
+\end{figure}
 \subsection{Зависимость от разброса}
 $P=1;Q=0,5;\beta=0,7$
 \begin{figure}[H]
@@ -996,9 +1525,5 @@ $P=1;Q=0,5;\beta=0,7$
 \end{figure}
 Из графиков видно, что ошибка подгонки поляризации $P$ не зависит от $\sigma_{x'}$, но растёт при увеличении $\sigma_{y'}$. 
 
-\section{Зависимость от параметров}
 
-\section{Подгонка без вещества}
-
-...
 \end{document}

@@ -49,7 +49,7 @@ void PrimaryGenerator::GeneratePrimaries(G4Event* event)
 	
 	double bracket1 = 1 - (theta_e*theta_e)/2;
 	double bracket2 = 1 - (theta * theta) / 2;
-	double bracket3 = 2 + ((theta_x + disp_x)*(theta_x+disp_x) + (theta_y + disp_y)*(theta_y + disp_y))/2;
+	double bracket3 = 2 - ((theta_x + disp_x)*(theta_x+disp_x) + (theta_y + disp_y)*(theta_y + disp_y))/2;
 	double PhotonEnergy = (compt.o) * (1 + beta * bracket1) / (1 - beta * bracket2 + compt.o * bracket3/compt.get_energy());
 
 	fParticleGun -> SetParticleMomentum(PhotonEnergy * MeV);

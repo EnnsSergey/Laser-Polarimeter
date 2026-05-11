@@ -38,12 +38,14 @@ int main(int argc, char** argv)
 			params.d_theta_x = pow(10,-6) * std::atof(argv[++i]);
 		else if (std::string(argv[i]) == "--sy" && i+1 < argc)
 			params.d_theta_y = pow(10,-6) * std::atof(argv[++i]);
+		else if (std::string(argv[i]) == "--d" && i+1 < argc)
+			params.conv_thick = G4UIcommand::ConvertToDouble(argv[++i]) * mm;
 	}
 
 	G4RunManager* runManager = new G4RunManager; 
 
 	Gen.seed(thr_num + std::time(0));
-	runManager -> SetUserInitialization(new DetectorConstruction());
+	runManager -> SetUserInitialization(new DetectorConstruction(params));
 	runManager -> SetUserInitialization(new PhysicsList());
 	runManager -> SetUserInitialization(new ActionInitialization(params, thr_num));
 	runManager -> Initialize();    

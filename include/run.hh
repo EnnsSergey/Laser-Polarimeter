@@ -9,6 +9,8 @@
 #include <fstream>
 #include <iostream>
 #include "params.hh"
+#include "event.hh"
+#include <vector>
 class RunAction : public G4UserRunAction
 {
 	public:
@@ -19,8 +21,10 @@ class RunAction : public G4UserRunAction
 		virtual void EndOfRunAction(const G4Run*);
 		std::array<std::array<G4int, ReadOut::XSIZE>, ReadOut::YSIZE> histogram_l;
 		std::array<std::array<G4int, ReadOut::XSIZE>, ReadOut::YSIZE> histogram_r;
+		std::vector<int> spectrum;
 		int thr_num;	
 		Params fParams;
+
 };
 
 #endif

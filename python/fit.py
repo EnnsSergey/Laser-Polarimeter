@@ -462,8 +462,8 @@ h_dict['env_params'] = {'vepp4E': 4730.0 }
 
 print(h_dict)
 
-par = out_dir.replace("../output_", "").split("_")
-
+par = out_dir.replace("../output_", "").split("_") # удаление output и разделение по _
+#par = out_dir.replace("../output_pb_", "")
 fitter, data_fields = make_fit(config, h_dict, par)
 
 fig, ax = init_figure('Laser Polarimeter 2D Fit')

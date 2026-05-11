@@ -490,19 +490,6 @@ class FitMethod3:
         print(self.minuit.fmin) #Результат подгонки:EDM, сошлась-не сошлась
         print(self.minuit.params) #Печать полученных значений параметров в результате подгонки
 
-        print("ПАРАМЕТР P", self.minuit.values['P'])
-        print("ПАРАМЕТР Q", self.minuit.values['Q'])
-        print("ПАРАМЕТР beta", self.minuit.values['beta'])
-        print("разброс ", pars)
-        '''
-        file = open(f"fit_params/{pars[0]}_{pars[1]}.txt", "w")
-        #Cтрогий порядок вывода -- P, Q, beta
-        file.write(str(self.minuit.values['P'])+ "\n")
-        file.write(str(self.minuit.values['Q'])+ "\n")
-        file.write(str(self.minuit.values['beta'])+ "\n")
-        
-        file.close()
-        '''
         Q = self.minuit.values['Q']
         beta = self.minuit.values['beta']
         beta = beta % (2*np.pi) # возвращение на окружность от 0 до 2pi
@@ -526,10 +513,11 @@ class FitMethod3:
                 beta = beta - 3*np.pi/2
                 Q = -Q
         
-        print("НОВЫЙ ПАРАМЕТР Q:", Q)
-        print("НОВЫЙ ПАРАМЕТР beta: ", beta)
+        #print("НОВЫЙ ПАРАМЕТР Q:", Q)
+        #print("НОВЫЙ ПАРАМЕТР beta: ", beta)
                 
-        with open(f"fit_params/{pars[0]}_{pars[1]}.txt", "w") as file:
+        #with open(f"fit_params/pb_{pars}.txt", "w") as file:   
+        with open(f"fit_params/{pars[0]}_{pars[1]}.txt", "w") as file:   
             file.write(f"{self.minuit.values['P']} {self.minuit.errors['P']}  # P +- err\n")
             file.write(f"{self.minuit.values['Q']} {self.minuit.errors['Q']}  # Q +- err\n")
             file.write(f"{beta} {self.minuit.errors['beta']}  # beta +- err\n")
@@ -539,4 +527,3 @@ class FitMethod3:
         self.chi2 = self.minuit.fval
 
         return self.minuit
-
