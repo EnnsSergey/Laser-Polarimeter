@@ -1416,10 +1416,10 @@ G4bool SensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory* ROhist)
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{distr.png}
-    \caption{Плотность вероятности для заряда на паде}
+    \caption{Распределение вероятности для заряда на паде}
     \label{fig:placeholder}
 \end{figure}
-
+Максимум при 17.
 
 \subsubsection{Газовый электронный умножитель}
 Известен коэффициент диффузии -- $D = \dfrac{300  \ \mu}{\sqrt{cm}}$.
@@ -1511,19 +1511,49 @@ G4bool SensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory* ROhist)
     \label{fig:placeholder}
 \end{figure}
 \subsection{Зависимость от разброса}
-$P=1;Q=0,5;\beta=0,7$
+$P=1;Q=0,1;\beta=0,7$
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{pictures/подгон_300_y.png}
+    \includegraphics[width=0.7\linewidth]{подгон_300_y.png}
     \label{fig:placeholder}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{pictures/подгон_x_50.png}
+    \includegraphics[width=0.7\linewidth]{подгон_x_50.png}
     \label{fig:placeholder}
 \end{figure}
 Из графиков видно, что ошибка подгонки поляризации $P$ не зависит от $\sigma_{x'}$, но растёт при увеличении $\sigma_{y'}$. 
 
+\subsection{Зависимость от поляризации}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{pol.png}
+    \caption{Подогнанная поляризация при пороге=0}
+    \label{fig:placeholder}
+\end{figure}
+$k=0.94$
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{pol17.png}
+    \caption{Подогнанная поляризация при пороге=17}
+    \label{fig:placeholder}
+\end{figure}
+$k=0.91$
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{pol50.png}
+    \caption{Подогнанная поляризация при пороге=50}
+    \label{fig:placeholder}
+\end{figure}
+$k=0.84$
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{pol100.png}
+    \caption{Подогнанная поляризация при пороге=100}
+    \label{fig:placeholder}
+\end{figure}
+$k=0.80$
 \end{document}
